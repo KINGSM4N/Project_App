@@ -5,8 +5,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.Font
+import com.example.projectapp.R
 
 // Set of Material typography styles to start with
+val Poppins = FontFamily(
+    Font(R.font.poppins_regular, FontWeight.Normal),
+    Font(R.font.poppins_bold, FontWeight.Bold)
+)
+
+val LeagueSpartan = FontFamily(
+    Font(R.font.leaguespartan_light, FontWeight.Light),
+    Font(R.font.leaguespartan_medium, FontWeight.Medium)
+)
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
