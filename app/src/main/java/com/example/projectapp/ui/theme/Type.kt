@@ -11,12 +11,13 @@ import com.example.projectapp.R
 // Set of Material typography styles to start with
 val Poppins = FontFamily(
     Font(R.font.poppins_regular, FontWeight.Normal),
-    Font(R.font.poppins_bold, FontWeight.Bold)
+    Font(R.font.poppins_bold, FontWeight.Bold),
+    Font(R.font.poppins_extrabold, FontWeight.ExtraBold),
 )
 
 val LeagueSpartan = FontFamily(
     Font(R.font.leaguespartan_light, FontWeight.Light),
-    Font(R.font.leaguespartan_medium, FontWeight.Medium)
+    Font(R.font.leaguespartan_medium, FontWeight.Medium),
 )
 val Typography = Typography(
     bodyLarge = TextStyle(
