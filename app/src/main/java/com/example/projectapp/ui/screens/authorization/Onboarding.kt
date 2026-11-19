@@ -3,6 +3,7 @@ package com.example.projectapp.ui.screens.authorization
 import androidx.compose.foundation.Image
 import com.example.projectapp.R
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -118,6 +120,22 @@ fun OnboardingB(onNext: () -> Unit, onSkip: () -> Unit) {
                 .background(AppBackground.copy(alpha = 0.6f))
         )
 
+        TextButton(
+            onClick = onSkip,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .systemBarsPadding()
+                .padding(top = 16.dp, end = 16.dp)
+        ) {
+            Text(
+                text = "Skip >",
+                color = AppLime,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -154,20 +172,7 @@ fun OnboardingB(onNext: () -> Unit, onSkip: () -> Unit) {
             }
         }
 
-        TextButton(
-            onClick = onSkip,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp)
-        ) {
-            Text(
-                text = "Skip >",
-                color = AppLime,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
-            )
-        }
+
     }
 }
 
@@ -186,6 +191,22 @@ fun OnboardingC(onNext: () -> Unit, onSkip: () -> Unit) {
                 .fillMaxSize()
                 .background(AppBackground.copy(alpha = 0.6f))
         )
+
+        TextButton(
+            onClick = onSkip,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .systemBarsPadding()
+                .padding(top = 16.dp, end = 16.dp)
+        ) {
+            Text(
+                text = "Skip >",
+                color = AppLime,
+                fontFamily = Poppins,
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -223,20 +244,6 @@ fun OnboardingC(onNext: () -> Unit, onSkip: () -> Unit) {
             }
         }
 
-        TextButton(
-            onClick = onSkip,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp)
-        ) {
-            Text(
-                text = "Skip >",
-                color = AppLime,
-                fontFamily = Poppins,
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp
-            )
-        }
     }
 }
 

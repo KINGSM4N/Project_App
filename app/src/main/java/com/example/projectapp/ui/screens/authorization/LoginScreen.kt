@@ -158,7 +158,7 @@ fun LoginScreen(
                 textStyle = TextStyle(
                     fontFamily = LeagueSpartan,
                     fontSize = 24.sp,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Start
                 ),
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),

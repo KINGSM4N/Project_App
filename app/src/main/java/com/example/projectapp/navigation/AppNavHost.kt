@@ -23,9 +23,9 @@ fun AppNavHost() {
         composable(Routes.ONBOARDING) {
             OnboardingScreen(onFinished = { nav.navigate(Routes.LOGIN) })
         }
-//        composable(Routes.LOGIN) {
-//            LoginScreen(onLoginClick = { nav.navigate(Routes.SETUP_GENDER) })
-//        }
+        composable(Routes.LOGIN) {
+            LoginScreen(onLoginClick = { nav.navigate(Routes.SETUP_GENDER) })
+        }
 //        composable(Routes.SETUP_GENDER) {
 //            SetupGenderScreen(onContinue = { nav.navigate(Routes.HOME) })
 //        }
