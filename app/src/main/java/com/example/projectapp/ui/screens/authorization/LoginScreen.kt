@@ -23,10 +23,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.projectapp.R
 import com.example.projectapp.ui.theme.AppBackground
 import com.example.projectapp.ui.theme.AppButtonGray
@@ -47,15 +46,16 @@ import com.example.projectapp.ui.theme.AppPurple
 import com.example.projectapp.ui.theme.AppTextDark
 import com.example.projectapp.ui.theme.LeagueSpartan
 import com.example.projectapp.ui.theme.Poppins
+import com.example.projectapp.viewmodel.LoginViewModel
 
 @Composable
 fun LoginScreen(
     onLoginClick: () -> Unit,
     onSignUpClick: () -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    viewModel: LoginViewModel = viewModel()
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val state by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -114,8 +114,8 @@ fun LoginScreen(
                 fontSize = 18.sp
             )
             TextField(
-                value = email,
-                onValueChange = { email = it },
+                value = state.email,
+                onValueChange = { viewModel.onEmailChange(it) },
                 placeholder = {
                     Text(
                         text = "220103032@stu.sdu.edu.kz",
@@ -148,8 +148,8 @@ fun LoginScreen(
                 fontSize = 18.sp
             )
             TextField(
-                value = password,
-                onValueChange = {password = it},
+                value = state.password,
+                onValueChange = { viewModel.onPasswordChange(it) },
                 placeholder = {
                     Text(
                         text = "*************",
@@ -190,7 +190,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(38.dp))
 
         Button(
-            onClick = onLoginClick,
+            onClick = { if (viewModel.validate()) onLoginClick() },
             colors = ButtonDefaults.buttonColors(containerColor = AppButtonGray),
             modifier = Modifier
                 .fillMaxWidth(0.5f)
