@@ -370,7 +370,7 @@ private fun ArticleCard(
 }
 
 @Composable
-private fun HomeBottomBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
+fun HomeBottomBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     val icons = listOf(
         Icons.Default.Home,
         Icons.Default.DateRange,
