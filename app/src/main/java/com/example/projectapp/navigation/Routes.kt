@@ -9,4 +9,13 @@ object Routes {
     const val HOME = "home"
     const val DETAILS = "details/{id}"
     fun details(id: Int) = "details/$id"
+    const val FORGOT_PASSWORD = "forgot_password"
+    const val SET_PASSWORD = "set_password"
+    const val SETUP_INTRO = "setup_intro"
+    const val SETUP_AGE = "setup_age"
+    const val SETUP_WEIGHT = "setup_weight"
+    const val SETUP_HEIGHT = "setup_height"
+    const val SETUP_GOAL = "setup_goal"
+    const val SETUP_ACTIVITY = "setup_activity"
+    const val SETUP_PROFILE = "setup_profile"
 }
