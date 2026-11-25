@@ -8,7 +8,7 @@ object Routes {
     const val SETUP_GENDER = "setup_gender"
     const val HOME = "home"
     const val DETAILS = "details/{id}"
-    fun details(id: Int) = "details/$id"
+    fun details(id: String) = "details/$id"
     const val FORGOT_PASSWORD = "forgot_password"
     const val SET_PASSWORD = "set_password"
     const val SETUP_INTRO = "setup_intro"

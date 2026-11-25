@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.projectapp.data.HomeItem
 import com.example.projectapp.data.weeklyChallenge
 import com.example.projectapp.ui.theme.AppBackground
 import com.example.projectapp.ui.theme.AppLime
@@ -37,10 +36,13 @@ import com.example.projectapp.ui.theme.LeagueSpartan
 import com.example.projectapp.ui.theme.Poppins
 import com.example.projectapp.viewmodel.HomeUiState
 import com.example.projectapp.viewmodel.HomeViewModel
+import coil.compose.AsyncImage
+import com.example.projectapp.data.Meal
+import com.example.projectapp.viewmodel.MealsContent
 
 @Composable
 fun HomeScreen(
-    onItemClick: (Int) -> Unit,
+    onItemClick: (String) -> Unit,
     onProfileClick: () -> Unit,
     onFavoritesClick: () -> Unit,
     viewModel: HomeViewModel = viewModel()
@@ -58,15 +60,17 @@ fun HomeScreen(
                 else -> viewModel.onTabSelected(it)
             }
         },
+        onRetry = { viewModel.loadMeals() }
     )
 }
 
 @Composable
 fun HomeContent(
     state: HomeUiState,
-    onItemClick: (Int) -> Unit,
-    onFavoriteClick: (Int) -> Unit,
-    onTabSelected: (Int) -> Unit
+    onItemClick: (String) -> Unit,
+    onFavoriteClick: (String) -> Unit,
+    onTabSelected: (Int) -> Unit,
+    onRetry: () -> Unit
 ) {
     Scaffold(
         containerColor = AppBackground,
@@ -79,49 +83,109 @@ fun HomeContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { HomeHeader(state.userName) }
-
             item { QuickActions() }
 
-            item { SectionTitle("Recommendations", showSeeAll = true) }
-
-            item {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(state.recommendations) { item ->
-                        RecommendationCard(
-                            item = item,
-                            isFavorite = item.id in state.favorites,
-                            onClick = { onItemClick(item.id) },
-                            onFavoriteClick = { onFavoriteClick(item.id) }
-                        )
+            when (val content = state.content) {
+                is MealsContent.Loading -> item { LoadingBox() }
+                is MealsContent.Error -> item { ErrorBox(content.message, onRetry) }
+                is MealsContent.Empty -> item { EmptyBox() }
+                is MealsContent.Success -> {
+                    item { SectionTitle("Recommendations", showSeeAll = true) }
+                    item {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(content.recommendations) { meal ->
+                                RecommendationCard(
+                                    item = meal,
+                                    isFavorite = meal.id in state.favorites,
+                                    onClick = { onItemClick(meal.id) },
+                                    onFavoriteClick = { onFavoriteClick(meal.id) }
+                                )
+                            }
+                        }
                     }
-                }
-            }
 
-            item { WeeklyChallenge(onClick = { onItemClick(weeklyChallenge.id) }) }
+                    item { WeeklyChallenge() }
 
-            item { SectionTitle("Articles & Tips", showSeeAll = false) }
-
-            item {
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(state.articles) { item ->
-                        ArticleCard(
-                            item = item,
-                            isFavorite = item.id in state.favorites,
-                            onClick = { onItemClick(item.id) },
-                            onFavoriteClick = { onFavoriteClick(item.id) }
-                        )
+                    item { SectionTitle("Articles & Tips", showSeeAll = false) }
+                    item {
+                        LazyRow(
+                            contentPadding = PaddingValues(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(content.articles) { meal ->
+                                ArticleCard(
+                                    item = meal,
+                                    isFavorite = meal.id in state.favorites,
+                                    onClick = { onItemClick(meal.id) },
+                                    onFavoriteClick = { onFavoriteClick(meal.id) }
+                                )
+                            }
+                        }
                     }
                 }
             }
 
             item { Spacer(modifier = Modifier.height(8.dp)) }
         }
+    }
+}
+
+@Composable
+private fun LoadingBox() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 64.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = AppLime)
+    }
+}
+
+@Composable
+private fun ErrorBox(message: String, onRetry: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = message,
+            color = Color.White,
+            fontFamily = Poppins,
+            fontSize = 14.sp
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = AppLime,
+                contentColor = Color.Black
+            )
+        ) {
+            Text("Retry", fontFamily = Poppins)
+        }
+    }
+}
+
+@Composable
+private fun EmptyBox() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 64.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "No meals available",
+            color = Color.White,
+            fontFamily = Poppins,
+            fontSize = 14.sp
+        )
     }
 }
 
@@ -237,7 +301,7 @@ private fun FavoriteStar(isFavorite: Boolean, onClick: () -> Unit, modifier: Mod
 
 @Composable
 private fun RecommendationCard(
-    item: HomeItem,
+    item: Meal,
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit
@@ -250,9 +314,9 @@ private fun RecommendationCard(
             .clickable { onClick() }
     ) {
         Box {
-            Image(
-                painter = painterResource(id = item.image),
-                contentDescription = item.title,
+            AsyncImage(
+                model = item.imageUrl,
+                contentDescription = item.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -273,28 +337,19 @@ private fun RecommendationCard(
         }
         Column(modifier = Modifier.padding(12.dp)) {
             Text(
-                text = item.title,
+                text = item.name,
                 color = AppLime,
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Medium,
                 fontSize = 15.sp
             )
             Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text("${item.minutes} Minutes", color = Color.White,
-                    fontFamily = LeagueSpartan, fontSize = 12.sp)
-                Text("${item.kcal} Kcal", color = Color.White,
-                    fontFamily = LeagueSpartan, fontSize = 12.sp)
-            }
         }
     }
 }
 
 @Composable
-private fun WeeklyChallenge(onClick: () -> Unit) {
+private fun WeeklyChallenge() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -306,8 +361,7 @@ private fun WeeklyChallenge(onClick: () -> Unit) {
                 .fillMaxWidth()
                 .height(150.dp)
                 .clip(RoundedCornerShape(24.dp))
-                .background(AppBackground)
-                .clickable { onClick() },
+                .background(AppBackground),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
@@ -345,7 +399,7 @@ private fun WeeklyChallenge(onClick: () -> Unit) {
 
 @Composable
 private fun ArticleCard(
-    item: HomeItem,
+    item: Meal,
     isFavorite: Boolean,
     onClick: () -> Unit,
     onFavoriteClick: () -> Unit
@@ -356,20 +410,19 @@ private fun ArticleCard(
             .clickable { onClick() }
     ) {
         Box {
-            Image(
-                painter = painterResource(id = item.image),
-                contentDescription = item.title,
+            AsyncImage(
+                model = item.imageUrl,
+                contentDescription = item.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(24.dp))
+                    .height(110.dp)
             )
             FavoriteStar(isFavorite, onFavoriteClick, Modifier.align(Alignment.TopEnd))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = item.title,
+            text = item.name,
             color = Color.White,
             fontFamily = Poppins,
             fontSize = 14.sp
@@ -408,6 +461,7 @@ fun HomePreview() {
         state = HomeUiState(),
         onItemClick = {},
         onFavoriteClick = {},
-        onTabSelected = {}
+        onTabSelected = {},
+        onRetry = {}
     )
 }

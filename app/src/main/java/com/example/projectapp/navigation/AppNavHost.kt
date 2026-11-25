@@ -148,9 +148,9 @@ fun AppNavHost() {
         }
         composable(
             route = Routes.DETAILS,
-            arguments = listOf(navArgument("id") { type = NavType.IntType })
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt("id") ?: 0
+            val id = backStackEntry.arguments?.getString("id") ?: ""
             DetailsScreen(id = id, onBack = { nav.popBackStack() })
         }
         composable(Routes.FAVORITES) {
