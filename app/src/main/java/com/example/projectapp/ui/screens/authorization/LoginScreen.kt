@@ -53,7 +53,8 @@ fun LoginScreen(
     onLoginClick: () -> Unit,
     onSignUpClick: () -> Unit = {},
     onBack: () -> Unit = {},
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = viewModel(),
+    onForgotPasswordClick: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsState()
 
@@ -183,8 +184,20 @@ fun LoginScreen(
                 color = AppTextDark,
                 fontFamily = Poppins,
                 fontSize = 13.sp,
-                modifier = Modifier.align(Alignment.End)
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .clickable { onForgotPasswordClick() }
             )
+
+            state.error?.let {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = it,
+                    color = Color(0xFFB00020),
+                    fontFamily = LeagueSpartan,
+                    fontSize = 14.sp
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(38.dp))
