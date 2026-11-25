@@ -30,79 +30,79 @@ fun AppNavHost() {
     val nav = rememberNavController()
     val setupViewModel: SetupViewModel = viewModel()
     NavHost(navController = nav, startDestination = Routes.SPLASH) {
-        composable(Routes.SPLASH) {
-            SplashScreen(onFinished = { nav.navigate(Routes.ONBOARDING) })
-        }
-        composable(Routes.ONBOARDING) {
-            OnboardingScreen(onFinished = { nav.navigate(Routes.LOGIN) })
-        }
-        composable(Routes.LOGIN) {
-            LoginScreen(onLoginClick = { nav.navigate(Routes.SETUP_GENDER) })
-        }
-        composable(Routes.LOGIN) {
-            LoginScreen(
-                onLoginClick = { nav.navigate(Routes.SETUP_GENDER) },
-                onSignUpClick = { nav.navigate(Routes.SIGN_UP) },
-                onForgotPasswordClick = { nav.navigate(Routes.FORGOT_PASSWORD) },
-                onBack = { nav.popBackStack() }
-            )
-        }
-        composable(Routes.SIGN_UP) {
-            SignUpScreen(
-                onSignUpSuccess = { nav.navigate(Routes.SETUP_GENDER) },
-                onLoginClick = { nav.popBackStack() },
-                onBack = { nav.popBackStack() }
-            )
-        }
-        composable(Routes.FORGOT_PASSWORD) {
-            ForgotPasswordScreen(
-                onContinueClick = { nav.navigate(Routes.SET_PASSWORD) },
-                onBack = { nav.popBackStack() }
-            )
-        }
-        composable(Routes.SET_PASSWORD) {
-            SetPasswordScreen(
-                onResetClick = {
-                    nav.navigate(Routes.LOGIN) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
-                    }
-                },
-                onBack = { nav.popBackStack() }
-            )
-        }
-        composable(Routes.SETUP_INTRO) {
-            SetupIntroScreen(onNext = { nav.navigate(Routes.SETUP_GENDER) })
-        }
-        composable(Routes.SETUP_GENDER) {
-            SetupGenderScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_AGE) },
-                onBack = { nav.popBackStack() })
-        }
-        composable(Routes.SETUP_AGE) {
-            SetupAgeScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_WEIGHT) },
-                onBack = { nav.popBackStack() })
-        }
-        composable(Routes.SETUP_WEIGHT) {
-            SetupWeightScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_HEIGHT) },
-                onBack = { nav.popBackStack() })
-        }
-        composable(Routes.SETUP_HEIGHT) {
-            SetupHeightScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_GOAL) },
-                onBack = { nav.popBackStack() })
-        }
-        composable(Routes.SETUP_GOAL) {
-            SetupGoalScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_ACTIVITY) },
-                onBack = { nav.popBackStack() })
-        }
-        composable(Routes.SETUP_ACTIVITY) {
-            SetupActivityScreen(setupViewModel,
-                onContinue = { nav.navigate(Routes.SETUP_PROFILE) },
-                onBack = { nav.popBackStack() })
-        }
+//        composable(Routes.SPLASH) {
+//            SplashScreen(onFinished = { nav.navigate(Routes.ONBOARDING) })
+//        }
+//        composable(Routes.ONBOARDING) {
+//            OnboardingScreen(onFinished = { nav.navigate(Routes.LOGIN) })
+//        }
+//        composable(Routes.LOGIN) {
+//            LoginScreen(onLoginClick = { nav.navigate(Routes.SETUP_GENDER) })
+//        }
+//        composable(Routes.LOGIN) {
+//            LoginScreen(
+//                onLoginClick = { nav.navigate(Routes.SETUP_GENDER) },
+//                onSignUpClick = { nav.navigate(Routes.SIGN_UP) },
+//                onForgotPasswordClick = { nav.navigate(Routes.FORGOT_PASSWORD) },
+//                onBack = { nav.popBackStack() }
+//            )
+//        }
+//        composable(Routes.SIGN_UP) {
+//            SignUpScreen(
+//                onSignUpSuccess = { nav.navigate(Routes.SETUP_GENDER) },
+//                onLoginClick = { nav.popBackStack() },
+//                onBack = { nav.popBackStack() }
+//            )
+//        }
+//        composable(Routes.FORGOT_PASSWORD) {
+//            ForgotPasswordScreen(
+//                onContinueClick = { nav.navigate(Routes.SET_PASSWORD) },
+//                onBack = { nav.popBackStack() }
+//            )
+//        }
+//        composable(Routes.SET_PASSWORD) {
+//            SetPasswordScreen(
+//                onResetClick = {
+//                    nav.navigate(Routes.LOGIN) {
+//                        popUpTo(Routes.LOGIN) { inclusive = true }
+//                    }
+//                },
+//                onBack = { nav.popBackStack() }
+//            )
+//        }
+//        composable(Routes.SETUP_INTRO) {
+//            SetupIntroScreen(onNext = { nav.navigate(Routes.SETUP_GENDER) })
+//        }
+//        composable(Routes.SETUP_GENDER) {
+//            SetupGenderScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_AGE) },
+//                onBack = { nav.popBackStack() })
+//        }
+//        composable(Routes.SETUP_AGE) {
+//            SetupAgeScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_WEIGHT) },
+//                onBack = { nav.popBackStack() })
+//        }
+//        composable(Routes.SETUP_WEIGHT) {
+//            SetupWeightScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_HEIGHT) },
+//                onBack = { nav.popBackStack() })
+//        }
+//        composable(Routes.SETUP_HEIGHT) {
+//            SetupHeightScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_GOAL) },
+//                onBack = { nav.popBackStack() })
+//        }
+//        composable(Routes.SETUP_GOAL) {
+//            SetupGoalScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_ACTIVITY) },
+//                onBack = { nav.popBackStack() })
+//        }
+//        composable(Routes.SETUP_ACTIVITY) {
+//            SetupActivityScreen(setupViewModel,
+//                onContinue = { nav.navigate(Routes.SETUP_PROFILE) },
+//                onBack = { nav.popBackStack() })
+//        }
         composable(Routes.SETUP_PROFILE) {
             SetupProfileScreen(setupViewModel,
                 onStart = {
@@ -111,6 +111,9 @@ fun AppNavHost() {
                     }
                 },
                 onBack = { nav.popBackStack() })
+        }
+        composable(Routes.HOME) {
+            HomeScreen(onItemClick = { id -> nav.navigate(Routes.details(id)) })
         }
     }
 }
