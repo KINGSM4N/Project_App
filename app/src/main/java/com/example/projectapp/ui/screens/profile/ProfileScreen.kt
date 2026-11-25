@@ -34,10 +34,11 @@ fun ProfileScreen(
     onBack: () -> Unit,
     onEditProfile: () -> Unit,
     onHomeClick: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSettings: () -> Unit
 ) {
     val state by viewModel.uiState.collectAsState()
-    ProfileContent(state, onBack, onEditProfile, onHomeClick, onLogout)
+    ProfileContent(state, onBack, onEditProfile, onHomeClick, onLogout, onSettings)
 }
 
 @Composable
@@ -46,7 +47,8 @@ fun ProfileContent(
     onBack: () -> Unit,
     onEditProfile: () -> Unit,
     onHomeClick: () -> Unit,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onSettings: () -> Unit
 ) {
     val menu = listOf(
         Triple(Icons.Default.Person, "Profile", onEditProfile),
@@ -54,7 +56,8 @@ fun ProfileContent(
         Triple(Icons.Default.Lock, "Privacy Policy", {}),
         Triple(Icons.Default.Settings, "Settings", {}),
         Triple(Icons.Default.Info, "Help", {}),
-        Triple(Icons.AutoMirrored.Filled.ExitToApp, "Logout", onLogout)
+        Triple(Icons.AutoMirrored.Filled.ExitToApp, "Logout", onLogout),
+        Triple(Icons.Default.Settings, "Settings", onSettings),
     )
 
     Scaffold(
@@ -266,5 +269,5 @@ private fun StatItem(value: String, label: String, modifier: Modifier = Modifier
 @Preview(showBackground = true)
 @Composable
 fun ProfilePreview() {
-    ProfileContent(ProfileUiState(), {}, {}, {}, {})
+    ProfileContent(ProfileUiState(), {}, {}, {}, {},{})
 }

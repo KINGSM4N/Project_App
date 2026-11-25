@@ -21,4 +21,7 @@ object Routes {
     const val PROFILE = "profile"
     const val EDIT_PROFILE = "edit_profile"
     const val FAVORITES = "favorites"
+    const val SETTINGS = "settings"
+    const val NOTIFICATION_SETTINGS = "notification_settings"
+    const val PASSWORD_SETTINGS = "password_settings"
 }

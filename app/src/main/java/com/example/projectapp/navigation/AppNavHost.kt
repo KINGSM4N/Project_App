@@ -16,6 +16,10 @@ import com.example.projectapp.ui.screens.authorization.SplashScreen
 import com.example.projectapp.ui.screens.favorites.FavoritesScreen
 import com.example.projectapp.ui.screens.home.HomeScreen
 import com.example.projectapp.ui.screens.home.DetailsScreen
+import com.example.projectapp.ui.screens.profile.ProfileScreen
+import com.example.projectapp.ui.screens.settings.NotificationSettingsScreen
+import com.example.projectapp.ui.screens.settings.PasswordSettingsScreen
+import com.example.projectapp.ui.screens.settings.SettingsScreen
 import com.example.projectapp.ui.screens.setup.SetupActivityScreen
 import com.example.projectapp.ui.screens.setup.SetupAgeScreen
 import com.example.projectapp.ui.screens.setup.SetupGenderScreen
@@ -24,12 +28,26 @@ import com.example.projectapp.ui.screens.setup.SetupHeightScreen
 import com.example.projectapp.ui.screens.setup.SetupIntroScreen
 import com.example.projectapp.ui.screens.setup.SetupProfileScreen
 import com.example.projectapp.ui.screens.setup.SetupWeightScreen
+import com.example.projectapp.viewmodel.ProfileViewModel
+import com.example.projectapp.viewmodel.SettingsViewModel
 import com.example.projectapp.viewmodel.SetupViewModel
 
 @Composable
 fun AppNavHost() {
     val nav = rememberNavController()
     val setupViewModel: SetupViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
+
+    val onTab: (Int) -> Unit = {
+        when (it) {
+            0 -> nav.popBackStack(Routes.HOME, inclusive = false)
+            2 -> nav.navigate(Routes.FAVORITES)
+            3 -> nav.navigate(Routes.PROFILE) { popUpTo(Routes.HOME) }
+        }
+    }
+
+
     NavHost(navController = nav, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
             SplashScreen(onFinished = {
@@ -141,6 +159,38 @@ fun AppNavHost() {
                 onItemClick = { },
                 onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) },
                 onProfileClick = { nav.navigate(Routes.PROFILE) }
+            )
+        }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onBack = { nav.popBackStack() },
+                onNotifications = { nav.navigate(Routes.NOTIFICATION_SETTINGS) },
+                onPassword = { nav.navigate(Routes.PASSWORD_SETTINGS) },
+                onAccountDeleted = {
+                    nav.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                },
+                onTabSelected = onTab
+            )
+        }
+        composable(Routes.NOTIFICATION_SETTINGS) {
+            NotificationSettingsScreen(settingsViewModel, { nav.popBackStack() }, onTab)
+        }
+        composable(Routes.PASSWORD_SETTINGS) {
+            PasswordSettingsScreen(
+                viewModel = settingsViewModel,
+                onBack = { nav.popBackStack() },
+                onForgotPassword = { nav.navigate(Routes.FORGOT_PASSWORD) },
+                onTabSelected = onTab
+            )
+        }
+        composable(Routes.PROFILE) {
+            ProfileScreen(
+                viewModel = profileViewModel,
+                onBack = { nav.popBackStack() },
+                onEditProfile = { nav.navigate(Routes.EDIT_PROFILE) },
+                onSettings = { nav.navigate(Routes.SETTINGS) },
+                onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) },
+                onLogout = { nav.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } } }
             )
         }
     }
