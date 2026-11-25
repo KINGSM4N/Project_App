@@ -41,6 +41,8 @@ import com.example.projectapp.viewmodel.HomeViewModel
 @Composable
 fun HomeScreen(
     onItemClick: (Int) -> Unit,
+    onProfileClick: () -> Unit,
+    onFavoritesClick: () -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -49,7 +51,13 @@ fun HomeScreen(
         state = state,
         onItemClick = onItemClick,
         onFavoriteClick = { viewModel.toggleFavorite(it) },
-        onTabSelected = { viewModel.onTabSelected(it) }
+        onTabSelected = {
+            when (it) {
+                2 -> onFavoritesClick()
+                3 -> onProfileClick()
+                else -> viewModel.onTabSelected(it)
+            }
+        },
     )
 }
 

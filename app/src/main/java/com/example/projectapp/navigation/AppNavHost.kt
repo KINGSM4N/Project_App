@@ -13,6 +13,7 @@ import com.example.projectapp.ui.screens.authorization.OnboardingScreen
 import com.example.projectapp.ui.screens.authorization.SetPasswordScreen
 import com.example.projectapp.ui.screens.authorization.SignUpScreen
 import com.example.projectapp.ui.screens.authorization.SplashScreen
+import com.example.projectapp.ui.screens.favorites.FavoritesScreen
 import com.example.projectapp.ui.screens.home.HomeScreen
 import com.example.projectapp.ui.screens.home.DetailsScreen
 import com.example.projectapp.ui.screens.setup.SetupActivityScreen
@@ -30,90 +31,117 @@ fun AppNavHost() {
     val nav = rememberNavController()
     val setupViewModel: SetupViewModel = viewModel()
     NavHost(navController = nav, startDestination = Routes.SPLASH) {
-//        composable(Routes.SPLASH) {
-//            SplashScreen(onFinished = { nav.navigate(Routes.ONBOARDING) })
-//        }
-//        composable(Routes.ONBOARDING) {
-//            OnboardingScreen(onFinished = { nav.navigate(Routes.LOGIN) })
-//        }
-//        composable(Routes.LOGIN) {
-//            LoginScreen(onLoginClick = { nav.navigate(Routes.SETUP_GENDER) })
-//        }
-//        composable(Routes.LOGIN) {
-//            LoginScreen(
-//                onLoginClick = { nav.navigate(Routes.SETUP_GENDER) },
-//                onSignUpClick = { nav.navigate(Routes.SIGN_UP) },
-//                onForgotPasswordClick = { nav.navigate(Routes.FORGOT_PASSWORD) },
-//                onBack = { nav.popBackStack() }
-//            )
-//        }
-//        composable(Routes.SIGN_UP) {
-//            SignUpScreen(
-//                onSignUpSuccess = { nav.navigate(Routes.SETUP_GENDER) },
-//                onLoginClick = { nav.popBackStack() },
-//                onBack = { nav.popBackStack() }
-//            )
-//        }
-//        composable(Routes.FORGOT_PASSWORD) {
-//            ForgotPasswordScreen(
-//                onContinueClick = { nav.navigate(Routes.SET_PASSWORD) },
-//                onBack = { nav.popBackStack() }
-//            )
-//        }
-//        composable(Routes.SET_PASSWORD) {
-//            SetPasswordScreen(
-//                onResetClick = {
-//                    nav.navigate(Routes.LOGIN) {
-//                        popUpTo(Routes.LOGIN) { inclusive = true }
-//                    }
-//                },
-//                onBack = { nav.popBackStack() }
-//            )
-//        }
-//        composable(Routes.SETUP_INTRO) {
-//            SetupIntroScreen(onNext = { nav.navigate(Routes.SETUP_GENDER) })
-//        }
-//        composable(Routes.SETUP_GENDER) {
-//            SetupGenderScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_AGE) },
-//                onBack = { nav.popBackStack() })
-//        }
-//        composable(Routes.SETUP_AGE) {
-//            SetupAgeScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_WEIGHT) },
-//                onBack = { nav.popBackStack() })
-//        }
-//        composable(Routes.SETUP_WEIGHT) {
-//            SetupWeightScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_HEIGHT) },
-//                onBack = { nav.popBackStack() })
-//        }
-//        composable(Routes.SETUP_HEIGHT) {
-//            SetupHeightScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_GOAL) },
-//                onBack = { nav.popBackStack() })
-//        }
-//        composable(Routes.SETUP_GOAL) {
-//            SetupGoalScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_ACTIVITY) },
-//                onBack = { nav.popBackStack() })
-//        }
-//        composable(Routes.SETUP_ACTIVITY) {
-//            SetupActivityScreen(setupViewModel,
-//                onContinue = { nav.navigate(Routes.SETUP_PROFILE) },
-//                onBack = { nav.popBackStack() })
-//        }
-        composable(Routes.SETUP_PROFILE) {
-            SetupProfileScreen(setupViewModel,
-                onStart = {
-                    nav.navigate(Routes.HOME) {
-                        popUpTo(Routes.SETUP_INTRO) { inclusive = true }
+        composable(Routes.SPLASH) {
+            SplashScreen(onFinished = {
+                nav.navigate(Routes.ONBOARDING) {
+                    popUpTo(Routes.SPLASH) { inclusive = true }
+                }
+            })
+        }
+        composable(Routes.ONBOARDING) {
+            OnboardingScreen(onFinished = {
+                nav.navigate(Routes.LOGIN) {
+                    popUpTo(Routes.ONBOARDING) { inclusive = true }
+                }
+            })
+        }
+        composable(Routes.LOGIN) {
+            LoginScreen(
+                onLoginClick = { nav.navigate(Routes.SETUP_GENDER) },
+                onSignUpClick = { nav.navigate(Routes.SIGN_UP) },
+                onForgotPasswordClick = { nav.navigate(Routes.FORGOT_PASSWORD) },
+                onBack = { nav.popBackStack() }
+            )
+        }
+
+        composable(Routes.SIGN_UP) {
+            SignUpScreen(
+                onSignUpSuccess = { nav.navigate(Routes.SETUP_GENDER) },
+                onLoginClick = { nav.popBackStack() },
+                onBack = { nav.popBackStack() }
+            )
+        }
+        composable(Routes.FORGOT_PASSWORD) {
+            ForgotPasswordScreen(
+                onContinueClick = { nav.navigate(Routes.SET_PASSWORD) },
+                onBack = { nav.popBackStack() }
+            )
+        }
+        composable(Routes.SET_PASSWORD) {
+            SetPasswordScreen(
+                onResetClick = {
+                    nav.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
                     }
                 },
+                onBack = { nav.popBackStack() }
+            )
+        }
+        composable(Routes.SETUP_INTRO) {
+            SetupIntroScreen(onNext = { nav.navigate(Routes.SETUP_GENDER) })
+        }
+        composable(Routes.SETUP_GENDER) {
+            SetupGenderScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_AGE) },
                 onBack = { nav.popBackStack() })
         }
+        composable(Routes.SETUP_AGE) {
+            SetupAgeScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_WEIGHT) },
+                onBack = { nav.popBackStack() })
+        }
+        composable(Routes.SETUP_WEIGHT) {
+            SetupWeightScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_HEIGHT) },
+                onBack = { nav.popBackStack() })
+        }
+        composable(Routes.SETUP_HEIGHT) {
+            SetupHeightScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_GOAL) },
+                onBack = { nav.popBackStack() })
+        }
+        composable(Routes.SETUP_GOAL) {
+            SetupGoalScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_ACTIVITY) },
+                onBack = { nav.popBackStack() })
+        }
+        composable(Routes.SETUP_ACTIVITY) {
+            SetupActivityScreen(setupViewModel,
+                onContinue = { nav.navigate(Routes.SETUP_PROFILE) },
+                onBack = { nav.popBackStack() })
+        }
+        composable(Routes.SETUP_PROFILE) {
+            SetupProfileScreen(
+                setupViewModel,
+                onStart = {
+                    nav.navigate(Routes.HOME) {
+                        popUpTo(Routes.LOGIN) { inclusive = true }
+                    }
+                },
+                onBack = { nav.popBackStack() }
+            )
+        }
         composable(Routes.HOME) {
-            HomeScreen(onItemClick = { id -> nav.navigate(Routes.details(id)) })
+            HomeScreen(
+                onItemClick = { id -> nav.navigate(Routes.details(id)) },
+                onProfileClick = { nav.navigate(Routes.PROFILE) },
+                onFavoritesClick = { nav.navigate(Routes.FAVORITES) }
+            )
+        }
+        composable(
+            route = Routes.DETAILS,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("id") ?: 0
+            DetailsScreen(id = id, onBack = { nav.popBackStack() })
+        }
+        composable(Routes.FAVORITES) {
+            FavoritesScreen(
+                onBack = { nav.popBackStack() },
+                onItemClick = { },
+                onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) },
+                onProfileClick = { nav.navigate(Routes.PROFILE) }
+            )
         }
     }
 }

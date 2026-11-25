@@ -18,4 +18,7 @@ object Routes {
     const val SETUP_GOAL = "setup_goal"
     const val SETUP_ACTIVITY = "setup_activity"
     const val SETUP_PROFILE = "setup_profile"
+    const val PROFILE = "profile"
+    const val EDIT_PROFILE = "edit_profile"
+    const val FAVORITES = "favorites"
 }
