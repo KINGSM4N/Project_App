@@ -5,10 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [FavoriteEntity::class], version = 1, exportSchema = false)
+@Database(
+    entities = [FavoriteEntity::class, ProfileEntity::class],
+    version = 2,
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun favoriteDao(): FavoriteDao
+    abstract fun profileDao(): ProfileDao
 
     companion object {
         @Volatile
@@ -20,7 +25,8 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "foodtracker.db"
-                ).build().also { INSTANCE = it }
+                )   .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build().also { INSTANCE = it }
             }
     }
 }
