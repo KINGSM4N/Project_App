@@ -1,10 +1,16 @@
 package com.example.projectapp.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.projectapp.data.local.UserPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 enum class NotifOption(val label: String) {
     GENERAL("General Notification"),
@@ -24,16 +30,34 @@ data class SettingsUiState(
     val passwordChanged: Boolean = false
 )
 
-class SettingsViewModel : ViewModel() {
+class SettingsViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val prefs = UserPreferences(application)
+    private val defaultEnabled = setOf(NotifOption.VIBRATE, NotifOption.LOCK_SCREEN)
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    fun toggleNotif(option: NotifOption) = _uiState.update {
-        it.copy(
-            enabledNotifs = if (option in it.enabledNotifs) it.enabledNotifs - option
-            else it.enabledNotifs + option
-        )
+    init {
+        viewModelScope.launch {
+            combine(
+                NotifOption.entries.map { option ->
+                    prefs.toggle(option.name, default = option in defaultEnabled)
+                        .map { enabled -> option to enabled }
+                }
+            ) { pairs ->
+                pairs.filter { it.second }.map { it.first }.toSet()
+            }.collect { enabled ->
+                _uiState.update { it.copy(enabledNotifs = enabled) }
+            }
+        }
+    }
+
+    fun toggleNotif(option: NotifOption) {
+        viewModelScope.launch {
+            val isOn = option in _uiState.value.enabledNotifs
+            prefs.setToggle(option.name, !isOn)
+        }
     }
 
     fun onCurrentPassword(v: String) = _uiState.update { it.copy(currentPassword = v, passwordError = null) }

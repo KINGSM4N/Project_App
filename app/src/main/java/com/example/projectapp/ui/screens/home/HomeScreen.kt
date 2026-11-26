@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.projectapp.data.weeklyChallenge
+import com.example.projectapp.R
 import com.example.projectapp.ui.theme.AppBackground
 import com.example.projectapp.ui.theme.AppLime
 import com.example.projectapp.ui.theme.AppPurple
@@ -377,15 +377,15 @@ private fun WeeklyChallenge() {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = weeklyChallenge.title,
+                    text = "Plank With Hip Twist",
                     color = Color.White,
                     fontFamily = Poppins,
                     fontSize = 13.sp
                 )
             }
             Image(
-                painter = painterResource(id = weeklyChallenge.image),
-                contentDescription = weeklyChallenge.title,
+                painterResource(id = R.drawable.rec3),
+                contentDescription = "Plank With Hip Twist",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .weight(1f)
