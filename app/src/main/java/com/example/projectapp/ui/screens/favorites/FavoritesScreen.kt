@@ -1,6 +1,5 @@
 package com.example.projectapp.ui.screens.favorites
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,23 +14,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.projectapp.data.FavType
-import com.example.projectapp.data.FavoriteItem
+import coil.compose.AsyncImage
+import com.example.projectapp.data.Meal
 import com.example.projectapp.ui.screens.home.HomeBottomBar
 import com.example.projectapp.ui.theme.*
 import com.example.projectapp.viewmodel.FavFilter
@@ -41,7 +36,7 @@ import com.example.projectapp.viewmodel.FavoritesViewModel
 @Composable
 fun FavoritesScreen(
     onBack: () -> Unit,
-    onItemClick: (Int) -> Unit,
+    onItemClick: (String) -> Unit,
     onHomeClick: () -> Unit,
     onProfileClick: () -> Unit,
     viewModel: FavoritesViewModel = viewModel()
@@ -51,7 +46,7 @@ fun FavoritesScreen(
         state = state,
         onBack = onBack,
         onFilter = viewModel::setFilter,
-        onStar = viewModel::toggleStar,
+        onRemove = viewModel::remove,
         onItemClick = onItemClick,
         onTabSelected = {
             when (it) {
@@ -67,8 +62,8 @@ fun FavoritesContent(
     state: FavoritesUiState,
     onBack: () -> Unit,
     onFilter: (FavFilter) -> Unit,
-    onStar: (Int) -> Unit,
-    onItemClick: (Int) -> Unit,
+    onRemove: (String) -> Unit,
+    onItemClick: (String) -> Unit,
     onTabSelected: (Int) -> Unit
 ) {
     Scaffold(
@@ -80,18 +75,36 @@ fun FavoritesContent(
             SortRow(state.filter, onFilter)
             Spacer(Modifier.height(16.dp))
 
-            LazyColumn(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-                modifier = Modifier.weight(1f)
-            ) {
-                items(state.items, key = { it.id }) { item ->
-                    FavoriteCard(
-                        item = item,
-                        isStarred = item.id in state.starred,
-                        onClick = { onItemClick(item.id) },
-                        onStarClick = { onStar(item.id) }
+            when {
+                state.isLoading -> Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) { CircularProgressIndicator(color = AppLime) }
+
+                state.items.isEmpty() -> Box(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No favorites yet.\nTap the star on any meal to save it.",
+                        color = Color.White,
+                        fontFamily = Poppins,
+                        fontSize = 14.sp
                     )
+                }
+
+                else -> LazyColumn(
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(state.items, key = { it.id }) { meal ->
+                        FavoriteCard(
+                            meal = meal,
+                            onClick = { onItemClick(meal.id) },
+                            onStarClick = { onRemove(meal.id) }
+                        )
+                    }
                 }
             }
         }
@@ -136,7 +149,7 @@ private fun SortRow(selected: FavFilter, onFilter: (FavFilter) -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text("Sort By", color = AppLime, fontFamily = LeagueSpartan, fontSize = 16.sp)
-        FavFilter.values().forEach { filter ->
+        FavFilter.entries.forEach { filter ->
             val isSelected = filter == selected
             Box(
                 modifier = Modifier
@@ -160,8 +173,7 @@ private fun SortRow(selected: FavFilter, onFilter: (FavFilter) -> Unit) {
 
 @Composable
 private fun FavoriteCard(
-    item: FavoriteItem,
-    isStarred: Boolean,
+    meal: Meal,
     onClick: () -> Unit,
     onStarClick: () -> Unit
 ) {
@@ -181,7 +193,7 @@ private fun FavoriteCard(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = item.title,
+                text = meal.name,
                 color = Color.Black,
                 fontFamily = Poppins,
                 fontWeight = FontWeight.Medium,
@@ -190,23 +202,7 @@ private fun FavoriteCard(
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.height(4.dp))
-            if (item.description.isNotEmpty()) {
-                Text(
-                    text = item.description,
-                    color = Color.DarkGray,
-                    fontFamily = LeagueSpartan,
-                    fontSize = 15.sp,
-                    lineHeight = 12.sp,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis
-                )
-            } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    MetaText("${item.minutes} Minutes")
-                    MetaText(if (item.type == FavType.VIDEO) "${item.kcal} Kcal" else "${item.kcal} Cal")
-                }
-                if (item.exercises > 0) MetaText("${item.exercises} Exercises")
-            }
+            MetaText("Tap to view recipe")
         }
 
         Box(
@@ -215,35 +211,22 @@ private fun FavoriteCard(
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(20.dp))
         ) {
-            Image(
-                painter = painterResource(item.image),
-                contentDescription = item.title,
+            AsyncImage(
+                model = meal.imageUrl,
+                contentDescription = meal.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
             Icon(
                 Icons.Default.Star,
-                contentDescription = "Favorite",
-                tint = if (isStarred) AppLime else Color.White,
+                contentDescription = "Remove from favorites",
+                tint = AppLime,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(6.dp)
                     .size(20.dp)
                     .clickable { onStarClick() }
             )
-            if (item.type == FavType.VIDEO) {
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(AppPurple),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.PlayArrow, contentDescription = "Play",
-                        tint = Color.White, modifier = Modifier.size(16.dp))
-                }
-            }
         }
     }
 }
@@ -260,16 +243,14 @@ private fun MetaText(text: String) {
 @Preview(showBackground = true)
 @Composable
 fun FavoritesPreview() {
-    var state by remember { mutableStateOf(FavoritesUiState()) }
     FavoritesContent(
-        state = state,
+        state = FavoritesUiState(
+            isLoading = false,
+            items = listOf(Meal("1", "Sample meal", null, null, null, null))
+        ),
         onBack = {},
-        onFilter = { state = state.copy(filter = it) },
-        onStar = { id ->
-            state = state.copy(
-                starred = if (id in state.starred) state.starred - id else state.starred + id
-            )
-        },
+        onFilter = {},
+        onRemove = {},
         onItemClick = {},
         onTabSelected = {}
     )

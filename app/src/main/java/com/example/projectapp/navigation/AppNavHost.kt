@@ -156,7 +156,7 @@ fun AppNavHost() {
         composable(Routes.FAVORITES) {
             FavoritesScreen(
                 onBack = { nav.popBackStack() },
-                onItemClick = { },
+                onItemClick = { id -> nav.navigate(Routes.details(id)) },
                 onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) },
                 onProfileClick = { nav.navigate(Routes.PROFILE) }
             )

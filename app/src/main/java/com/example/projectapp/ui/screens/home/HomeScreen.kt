@@ -68,7 +68,7 @@ fun HomeScreen(
 fun HomeContent(
     state: HomeUiState,
     onItemClick: (String) -> Unit,
-    onFavoriteClick: (String) -> Unit,
+    onFavoriteClick: (Meal) -> Unit,
     onTabSelected: (Int) -> Unit,
     onRetry: () -> Unit
 ) {
@@ -101,8 +101,7 @@ fun HomeContent(
                                     item = meal,
                                     isFavorite = meal.id in state.favorites,
                                     onClick = { onItemClick(meal.id) },
-                                    onFavoriteClick = { onFavoriteClick(meal.id) }
-                                )
+                                    onFavoriteClick = { onFavoriteClick(meal) }                                )
                             }
                         }
                     }
@@ -120,8 +119,7 @@ fun HomeContent(
                                     item = meal,
                                     isFavorite = meal.id in state.favorites,
                                     onClick = { onItemClick(meal.id) },
-                                    onFavoriteClick = { onFavoriteClick(meal.id) }
-                                )
+                                    onFavoriteClick = { onFavoriteClick(meal) }                                )
                             }
                         }
                     }

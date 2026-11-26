@@ -1,35 +1,53 @@
 package com.example.projectapp.viewmodel
 
-import androidx.lifecycle.ViewModel
-import com.example.projectapp.data.FavType
-import com.example.projectapp.data.FavoriteItem
-import com.example.projectapp.data.favoriteItems
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.projectapp.data.Meal
+import com.example.projectapp.data.local.AppDatabase
+import com.example.projectapp.data.repository.FavoriteRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-enum class FavFilter(val label: String) { ALL("All"), VIDEO("Video"), ARTICLE("Article") }
+enum class FavFilter(val label: String) { ALL("All"), AZ("A-Z"), ZA("Z-A") }
 
 data class FavoritesUiState(
     val filter: FavFilter = FavFilter.ALL,
-    val starred: Set<Int> = favoriteItems.map { it.id }.toSet()
-) {
-    val items: List<FavoriteItem>
-        get() = when (filter) {
-            FavFilter.ALL -> favoriteItems
-            FavFilter.VIDEO -> favoriteItems.filter { it.type == FavType.VIDEO }
-            FavFilter.ARTICLE -> favoriteItems.filter { it.type == FavType.ARTICLE }
-        }
-}
+    val items: List<Meal> = emptyList(),
+    val isLoading: Boolean = true
+)
 
-class FavoritesViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(FavoritesUiState())
-    val uiState: StateFlow<FavoritesUiState> = _uiState.asStateFlow()
+class FavoritesViewModel(application: Application) : AndroidViewModel(application) {
 
-    fun setFilter(filter: FavFilter) = _uiState.update { it.copy(filter = filter) }
+    private val repository = FavoriteRepository(
+        AppDatabase.getInstance(application).favoriteDao()
+    )
 
-    fun toggleStar(id: Int) = _uiState.update {
-        it.copy(starred = if (id in it.starred) it.starred - id else it.starred + id)
+    private val filter = MutableStateFlow(FavFilter.ALL)
+
+    val uiState: StateFlow<FavoritesUiState> =
+        combine(repository.favorites, filter) { list, selected ->
+            val sorted = when (selected) {
+                FavFilter.ALL -> list
+                FavFilter.AZ -> list.sortedBy { it.name.lowercase() }
+                FavFilter.ZA -> list.sortedByDescending { it.name.lowercase() }
+            }
+            FavoritesUiState(filter = selected, items = sorted, isLoading = false)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = FavoritesUiState()
+        )
+
+    fun setFilter(newFilter: FavFilter) {
+        filter.value = newFilter
+    }
+
+    fun remove(id: String) {
+        viewModelScope.launch { repository.remove(id) }
     }
 }

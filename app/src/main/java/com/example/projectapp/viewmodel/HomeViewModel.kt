@@ -1,8 +1,11 @@
 package com.example.projectapp.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.projectapp.data.Meal
+import com.example.projectapp.data.local.AppDatabase
+import com.example.projectapp.data.repository.FavoriteRepository
 import com.example.projectapp.data.repository.MealRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,15 +30,27 @@ data class HomeUiState(
     val selectedTab: Int = 0
 )
 
-class HomeViewModel(
-    private val repository: MealRepository = MealRepository()
-) : ViewModel() {
+class HomeViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository = MealRepository()
+    private val favoriteRepository = FavoriteRepository(
+        AppDatabase.getInstance(application).favoriteDao()
+    )
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         loadMeals()
+        observeFavorites()
+    }
+
+    private fun observeFavorites() {
+        viewModelScope.launch {
+            favoriteRepository.favorites.collect { list ->
+                _uiState.update { it.copy(favorites = list.map { meal -> meal.id }.toSet()) }
+            }
+        }
     }
 
     fun loadMeals() {
@@ -62,11 +77,13 @@ class HomeViewModel(
         }
     }
 
-    fun toggleFavorite(id: String) {
-        _uiState.update {
-            val newFavorites =
-                if (id in it.favorites) it.favorites - id else it.favorites + id
-            it.copy(favorites = newFavorites)
+    fun toggleFavorite(meal: Meal) {
+        viewModelScope.launch {
+            if (meal.id in _uiState.value.favorites) {
+                favoriteRepository.remove(meal.id)
+            } else {
+                favoriteRepository.add(meal)
+            }
         }
     }
 
