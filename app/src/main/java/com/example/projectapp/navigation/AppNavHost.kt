@@ -16,6 +16,7 @@ import com.example.projectapp.ui.screens.authorization.SplashScreen
 import com.example.projectapp.ui.screens.favorites.FavoritesScreen
 import com.example.projectapp.ui.screens.home.HomeScreen
 import com.example.projectapp.ui.screens.home.DetailsScreen
+import com.example.projectapp.ui.screens.profile.EditProfileScreen
 import com.example.projectapp.ui.screens.profile.ProfileScreen
 import com.example.projectapp.ui.screens.settings.NotificationSettingsScreen
 import com.example.projectapp.ui.screens.settings.PasswordSettingsScreen
@@ -31,14 +32,35 @@ import com.example.projectapp.ui.screens.setup.SetupWeightScreen
 import com.example.projectapp.viewmodel.ProfileViewModel
 import com.example.projectapp.viewmodel.SettingsViewModel
 import com.example.projectapp.viewmodel.SetupViewModel
-
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.example.projectapp.data.local.UserPreferences
+import com.example.projectapp.ui.theme.AppBackground
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 @Composable
 fun AppNavHost() {
     val nav = rememberNavController()
     val setupViewModel: SetupViewModel = viewModel()
     val settingsViewModel: SettingsViewModel = viewModel()
     val profileViewModel: ProfileViewModel = viewModel()
+    val context = LocalContext.current
+    val prefs = remember { UserPreferences(context) }
+    val scope = rememberCoroutineScope()
 
+    var startDestination by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) {
+        startDestination = if (prefs.setupDone.first()) Routes.HOME else Routes.SPLASH
+    }
     val onTab: (Int) -> Unit = {
         when (it) {
             0 -> nav.popBackStack(Routes.HOME, inclusive = false)
@@ -46,9 +68,13 @@ fun AppNavHost() {
             3 -> nav.navigate(Routes.PROFILE) { popUpTo(Routes.HOME) }
         }
     }
+    val start = startDestination
+    if (start == null) {
+        Box(modifier = Modifier.fillMaxSize().background(AppBackground))
+        return
+    }
 
-
-    NavHost(navController = nav, startDestination = Routes.SPLASH) {
+    NavHost(navController = nav, startDestination = start) {
         composable(Routes.SPLASH) {
             SplashScreen(onFinished = {
                 nav.navigate(Routes.ONBOARDING) {
@@ -132,6 +158,8 @@ fun AppNavHost() {
             SetupProfileScreen(
                 setupViewModel,
                 onStart = {
+                    profileViewModel.createFromSetup(setupViewModel.uiState.value)
+                    scope.launch { prefs.setSetupDone(true) }
                     nav.navigate(Routes.HOME) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -167,6 +195,7 @@ fun AppNavHost() {
                 onNotifications = { nav.navigate(Routes.NOTIFICATION_SETTINGS) },
                 onPassword = { nav.navigate(Routes.PASSWORD_SETTINGS) },
                 onAccountDeleted = {
+                    scope.launch { prefs.setSetupDone(false) }
                     nav.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
                 },
                 onTabSelected = onTab
@@ -190,7 +219,16 @@ fun AppNavHost() {
                 onEditProfile = { nav.navigate(Routes.EDIT_PROFILE) },
                 onSettings = { nav.navigate(Routes.SETTINGS) },
                 onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) },
-                onLogout = { nav.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } } }
+                onLogout = {
+                    scope.launch { prefs.setSetupDone(false) }
+                    nav.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                }            )
+        }
+        composable(Routes.EDIT_PROFILE) {
+            EditProfileScreen(
+                viewModel = profileViewModel,
+                onBack = { nav.popBackStack() },
+                onHomeClick = { nav.popBackStack(Routes.HOME, inclusive = false) }
             )
         }
     }

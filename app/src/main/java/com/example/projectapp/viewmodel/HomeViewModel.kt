@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.projectapp.data.repository.ProfileRepository
 
 sealed interface MealsContent {
     data object Loading : MealsContent
@@ -37,18 +38,34 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         AppDatabase.getInstance(application).favoriteDao()
     )
 
+    private val profileRepository = ProfileRepository(
+        AppDatabase.getInstance(application).profileDao()
+    )
+
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
         loadMeals()
         observeFavorites()
+        observeProfile()
     }
 
     private fun observeFavorites() {
         viewModelScope.launch {
             favoriteRepository.favorites.collect { list ->
                 _uiState.update { it.copy(favorites = list.map { meal -> meal.id }.toSet()) }
+            }
+        }
+    }
+
+    private fun observeProfile() {
+        viewModelScope.launch {
+            profileRepository.profile.collect { profile ->
+                val firstName = profile?.fullName?.trim()?.substringBefore(" ").orEmpty()
+                if (firstName.isNotEmpty()) {
+                    _uiState.update { it.copy(userName = firstName) }
+                }
             }
         }
     }

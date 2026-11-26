@@ -54,10 +54,9 @@ fun ProfileContent(
         Triple(Icons.Default.Person, "Profile", onEditProfile),
         Triple(Icons.Default.Star, "Favorite", {}),
         Triple(Icons.Default.Lock, "Privacy Policy", {}),
-        Triple(Icons.Default.Settings, "Settings", {}),
+        Triple(Icons.Default.Settings, "Settings", onSettings),
         Triple(Icons.Default.Info, "Help", {}),
         Triple(Icons.AutoMirrored.Filled.ExitToApp, "Logout", onLogout),
-        Triple(Icons.Default.Settings, "Settings", onSettings),
     )
 
     Scaffold(
